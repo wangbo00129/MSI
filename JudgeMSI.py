@@ -108,7 +108,7 @@ def findPeakLocation(list_in, peak_threshold=0, threshold_as_relative=True, peak
 
 def determineStabilility(path_ngs_info_F, path_ngs_info_B, \
                          diff_threshold_for_one_tag=2, peak_threshold=0.2, threshold_as_relative=True, \
-                         tags_to_use=['tag36','tag37','tag38','tag39','tag40','tag41'], show_details=False, peak_smoothing=1,
+                         tags_to_use=['Bat25','Bat26','Mono27','NR21','NR24','NR27'], show_details=False, peak_smoothing=1,
                          raise_exception_if_tag_missing=False):
     dfs_ngs_F = readTagDepthFromNGS(path_ngs_info_F, peak_threshold=peak_threshold, threshold_as_relative=threshold_as_relative, peak_smoothing=peak_smoothing)
     dfs_ngs_B = readTagDepthFromNGS(path_ngs_info_B, peak_threshold=peak_threshold, threshold_as_relative=threshold_as_relative, peak_smoothing=peak_smoothing)
@@ -169,20 +169,16 @@ def determineStabilility(path_ngs_info_F, path_ngs_info_B, \
 if __name__ == '__main__':
     print('''
     ''')
-    TAGS_SHOULD_USE = ['tag36','tag37','tag38','tag39','tag40','tag41']
-    path_task_dir, dirname_F, dirname_B = sys.argv[1:4]
-    path_ngs_info_F = join(path_task_dir, dirname_F, 'MSI', 'info')
-    path_ngs_info_B = join(path_task_dir, dirname_B, 'MSI', 'info')
+    TAGS_SHOULD_USE = ['Bat25','Bat26','Mono27','NR21','NR24','NR27']
+    path_ngs_info_F, path_ngs_info_B, path_csv = sys.argv[1:4]
     unstable_tags, tags_to_use = determineStabilility(path_ngs_info_F, path_ngs_info_B, diff_threshold_for_one_tag=2, peak_threshold=0.2, threshold_as_relative=True, \
                          tags_to_use=TAGS_SHOULD_USE, show_details=False, peak_smoothing=1)
-    str_tumor_normal_with_ids = '{}_{}'.format(dirname_F, dirname_B).replace('/','')
-    str_tumor_normal = '{}_{}'.format(dirname_F.split('_')[0], dirname_B.split('_')[0])
-    path_csv = os.path.join(path_task_dir, '{}{}'.format(str_tumor_normal_with_ids, '.msi.csv'))
+    str_tumor_normal_with_ids = '{}_{}'.format(path_ngs_info_F, path_ngs_info_B).replace('/','')
+    
     df_unstable_tag_for_samples = pd.DataFrame()
     df_unstable_tag_for_samples.loc[str_tumor_normal_with_ids,'tags_to_use'] = ','.join(tags_to_use)
     df_unstable_tag_for_samples.loc[str_tumor_normal_with_ids,'unstable'] = ','.join(unstable_tags)
 
-    df_unstable_tag_for_samples.loc[:,'all_loci_Number'] = df_unstable_tag_for_samples.loc[:,'all_loci_Number'].astype(int)
     df_unstable_tag_for_samples.loc[:,'num_unstable'] = len(unstable_tags)
     df_unstable_tag_for_samples.loc[:,'result'] = df_unstable_tag_for_samples['num_unstable'].map(lambda x:'MSI_H' if x > 1 else 'MSI_L')
 
